@@ -77,6 +77,7 @@ import soot.toolkits.scalar.Pair;
 import soot.util.ArrayNumberer;
 import soot.util.HashMultiMap;
 import soot.util.LargeNumberedMap;
+import soot.util.NumberedString;
 import soot.util.queue.ChunkedQueue;
 import soot.util.queue.QueueReader;
 
@@ -831,6 +832,32 @@ public class PAG implements PointsToAnalysis {
             addCallTarget( srcmpag, tgtmpag, (Stmt) e.srcUnit(),
                            e.srcCtxt(), e.tgtCtxt(), e );
         }
+        else if( e.kind() == Kind.THREAD_RUNNABLE ) {
+        	InvokeExpr ie = e.srcStmt().getInvokeExpr();
+        	NumberedString subSig = ie.getMethodRef().getSubSignature();
+        	int index;
+        	if (subSig == sigThreadRunnable || subSig == sigThreadRunnableName) index = 0;
+        	else index = 1;
+        	boolean virtualCall = callAssigns.containsKey(ie);
+        	
+        	// TODO (ruian): In fact, I don't really remember what I have implemented here. I simply copied the following code.
+        	Node parm = srcmpag.nodeFactory().getNode( ie.getArg(index) );
+        	parm = srcmpag.parameterize( parm, e.srcCtxt() );
+        	parm = parm.getReplacement();
+
+        	Node thiz = tgtmpag.nodeFactory().caseThis();
+        	thiz = tgtmpag.parameterize( thiz, e.tgtCtxt() );
+        	thiz = thiz.getReplacement();
+
+        	addEdge( parm, thiz );
+        	pval = addInterproceduralAssignment(parm, thiz, e);
+        	callAssigns.put(ie, pval);
+        	callToMethod.put(ie, srcmpag.getMethod());
+
+        	if (virtualCall && !virtualCallsToReceivers.containsKey(ie)) {
+                virtualCallsToReceivers.put(ie, parm);
+            }
+        }
         else if( e.kind() == Kind.EXECUTOR ) {
         	InvokeExpr ie = e.srcStmt().getInvokeExpr();
             boolean virtualCall = callAssigns.containsKey(ie);
@@ -1208,5 +1235,15 @@ public class PAG implements PointsToAnalysis {
     public Map<InvokeExpr, SootMethod> callToMethod = new HashMap<InvokeExpr, SootMethod>(); 
     public Map<InvokeExpr, Node> virtualCallsToReceivers = new HashMap<InvokeExpr, Node>();
     
+    protected final NumberedString sigThreadRunnable = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.Runnable)");
+    protected final NumberedString sigThreadRunnableName = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.Runnable,java.lang.String)");
+    protected final NumberedString sigThreadGroupRunnable = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable)");
+    protected final NumberedString sigThreadGroupRunnableName = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable,java.lang.String)");
+    protected final NumberedString sigThreadGroupRunnableNameSize = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable,java.lang.String,long)");    
 }
 

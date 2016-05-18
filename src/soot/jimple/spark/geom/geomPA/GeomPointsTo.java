@@ -399,6 +399,7 @@ public class GeomPointsTo extends PAG
 			Stmt callsite = edge.srcStmt();
 			
 			if ( edge.isThreadRunCall() ||
+					edge.kind().isThreadRunnable() ||
 					edge.kind().isExecutor() ||
 					edge.kind().isAsyncTask() ) {
 				// We don't modify the treatment to the thread run() calls

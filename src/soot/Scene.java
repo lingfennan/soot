@@ -96,6 +96,7 @@ public class Scene  //extends AbstractHost
         	Kind.SPECIAL,
         	Kind.CLINIT,
         	Kind.THREAD,
+        	Kind.THREAD_RUNNABLE,
         	Kind.EXECUTOR,
         	Kind.ASYNCTASK,
         	Kind.FINALIZE,

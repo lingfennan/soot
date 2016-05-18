@@ -38,6 +38,8 @@ public final class Kind implements Numberable
     public static final Kind CLINIT = new Kind( "CLINIT" );
     /** Implicit call to Thread.run() due to Thread.start() call. */
     public static final Kind THREAD = new Kind( "THREAD" );
+    /** Implicit call to java.lang.Runnable.run() due to Thread.<init>(java.lang.Runnable) call. */
+    public static final Kind THREAD_RUNNABLE = new Kind( "THREAD_RUNNABLE");
     /** Implicit call to java.lang.Runnable.run() due to Executor.execute() call. */
     public static final Kind EXECUTOR = new Kind( "EXECUTOR" );
     /** Implicit call to AsyncTask.doInBackground() due to AsyncTask.execute() call. */
@@ -70,13 +72,14 @@ public final class Kind implements Numberable
     public String toString() { return name(); }
 
     public boolean passesParameters() {
-        return isExplicit() || this == THREAD || this == EXECUTOR || this == ASYNCTASK || this == FINALIZE ||
-            this == PRIVILEGED || this == NEWINSTANCE || this == INVOKE_FINALIZE ||
-            this == REFL_INVOKE || this == REFL_CONSTR_NEWINSTANCE || this == REFL_CLASS_NEWINSTANCE;
+        return isExplicit() || this == THREAD || this == THREAD_RUNNABLE || this == EXECUTOR || 
+        	this == ASYNCTASK || this == FINALIZE || this == PRIVILEGED || this == NEWINSTANCE ||
+        	this == INVOKE_FINALIZE || this == REFL_INVOKE || this == REFL_CONSTR_NEWINSTANCE ||
+        	this == REFL_CLASS_NEWINSTANCE;
     }
 
     public boolean isFake() {
-        return this == THREAD || this == EXECUTOR || this == ASYNCTASK || this == PRIVILEGED;
+        return this == THREAD || this == THREAD_RUNNABLE || this == EXECUTOR || this == ASYNCTASK || this == PRIVILEGED;
     }
 
     /** Returns true if the call is due to an explicit invoke statement. */
@@ -112,6 +115,10 @@ public final class Kind implements Numberable
 
     public boolean isThread() {
     	return this == THREAD;
+    }
+    
+    public boolean isThreadRunnable() {
+    	return this == THREAD_RUNNABLE;
     }
 
     public boolean isExecutor() {

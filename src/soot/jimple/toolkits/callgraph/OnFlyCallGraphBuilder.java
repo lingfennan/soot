@@ -430,12 +430,15 @@ public final class OnFlyCallGraphBuilder
             final VirtualCallSite site = siteIt.next();
             if( site.kind() == Kind.THREAD && !fh.canStoreType( type, clRunnable))
                 continue;
+            if( site.kind() == Kind.THREAD_RUNNABLE && !fh.canStoreType( type, clRunnable))
+            	continue;
             if( site.kind() == Kind.EXECUTOR && !fh.canStoreType( type, clRunnable))
                 continue;
             if( site.kind() == Kind.ASYNCTASK && !fh.canStoreType( type, clAsyncTask ))
                 continue;
 
             if( site.iie() instanceof SpecialInvokeExpr && site.kind != Kind.THREAD
+            		&& site.kind != Kind.THREAD_RUNNABLE
             		&& site.kind != Kind.EXECUTOR
             		&& site.kind != Kind.ASYNCTASK ) {
             	SootMethod target = VirtualCalls.v().resolveSpecial( 
@@ -548,6 +551,23 @@ public final class OnFlyCallGraphBuilder
                     if( subSig == sigStart ) {
                         addVirtualCallSite( s, m, receiver, iie, sigRun,
                                 Kind.THREAD );
+                    }
+                    else if (subSig == sigThreadRunnable
+                    		|| subSig == sigThreadRunnableName
+                    		|| subSig == sigThreadGroupRunnable
+                    		|| subSig == sigThreadGroupRunnableName
+                    		|| subSig == sigThreadGroupRunnableNameSize) {
+                    	int index = 0;
+                    	if (subSig == sigThreadGroupRunnable || subSig == sigThreadGroupRunnableName ||
+                    			subSig == sigThreadGroupRunnableNameSize) {
+                    		index = 1;
+                    	}
+                    	if (iie.getArgCount() > 0) {
+                    		Value runnable = iie.getArg(index);
+                    		if (runnable instanceof Local)
+                    			addVirtualCallSite( s, m, (Local) runnable, iie, sigRun,
+                    					Kind.EXECUTOR );
+                    	}
                     }
                     else if( subSig == sigExecutorExecute 
                     		|| subSig == sigHandlerPost
@@ -723,6 +743,17 @@ public final class OnFlyCallGraphBuilder
         findOrAdd( "void run()" );
     protected final NumberedString sigExecute = Scene.v().getSubSigNumberer().
             findOrAdd( "android.os.AsyncTask execute(java.lang.Object[])" );
+    
+    protected final NumberedString sigThreadRunnable = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.Runnable)");
+    protected final NumberedString sigThreadRunnableName = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.Runnable,java.lang.String)");
+    protected final NumberedString sigThreadGroupRunnable = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable)");
+    protected final NumberedString sigThreadGroupRunnableName = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable,java.lang.String)");
+    protected final NumberedString sigThreadGroupRunnableNameSize = Scene.v().getSubSigNumberer().
+    		findOrAdd("void <init>(java.lang.ThreadGroup,java.lang.Runnable,java.lang.String,long)");    
     
     protected final NumberedString sigExecutorExecute = Scene.v().getSubSigNumberer().
             findOrAdd( "void execute(java.lang.Runnable)" );
