@@ -209,7 +209,7 @@ public class SourceLocator
 					String entryName = entry.getName();
 					// We are dealing with an apk file
 					if (entryName.endsWith(".dex"))
-						classes.addAll(DexClassProvider.classesOfDex(new File(aPath)));
+						classes.addAll(DexClassProvider.classesOfDex(new File(aPath), entryName));
 				}
 				archive.close();			
 			} catch (IOException e) {
