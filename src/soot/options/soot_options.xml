@@ -6504,5 +6504,11 @@ the reports of times required for transformations.
 By default soot releases the method bodies of all reachable classes after the final writeout. This option deactivates this behaviour. This flag should not affect end users at all.
 </long_desc>
 		</boolopt>
+		<intopt>
+			<name>Number of threads used in processing</name>
+			<alias>thread-num</alias>
+			<short_desc>Specifies the number of thread to run.</short_desc>
+			<long_desc>By default soot specifies number of threads as the number of available processors. This option overrides that value.</long_desc>
+			<default>-1</default></intopt>
 	</section>
 </options>

@@ -611,7 +611,9 @@ public class PackManager {
     }
 
     private void runBodyPacks( final Iterator<SootClass> classes ) {
-    	int threadNum = Runtime.getRuntime().availableProcessors();
+        int threadNum;
+        if (Options.v().thread_num() > 0) threadNum = Options.v().thread_num();
+        else threadNum = Runtime.getRuntime().availableProcessors();
         CountingThreadPoolExecutor executor =  new CountingThreadPoolExecutor(threadNum,
         		threadNum, 30, TimeUnit.SECONDS,
         		new LinkedBlockingQueue<Runnable>());

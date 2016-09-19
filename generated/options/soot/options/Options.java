@@ -1264,6 +1264,19 @@ public class Options extends OptionsBase {
             )
                 no_writeout_body_releasing = true;
   
+            else if( false
+    		|| option.equals( "thread-num" )
+    		) {
+                if( !hasMoreOptions() ) {
+                    G.v().out.println( "No value given for option -"+option );
+                    return false;
+                }
+                int value = Integer.parseInt(nextOption());
+    
+                thread_num = value;
+                
+            }
+            
             else {
                 G.v().out.println( "Invalid option -"+option );
                 return false;
@@ -1583,7 +1596,10 @@ public class Options extends OptionsBase {
     public boolean no_writeout_body_releasing() { return no_writeout_body_releasing; }
     private boolean no_writeout_body_releasing = false;
     public void set_no_writeout_body_releasing( boolean setting ) { no_writeout_body_releasing = setting; }
-  
+
+    public int thread_num() { return thread_num; }
+    private int thread_num = -1;
+    public void set_thread_num( int setting ) { thread_num = setting; }
 
     public String getUsage() {
         return ""
